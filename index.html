@@ -483,7 +483,7 @@
             // Get or create room registry
             async function getRoomRegistry() {
                 try {
-                    const response = await fetch(${JSONBIN_BASE_URL}/${REGISTRY_BIN_ID}, {
+                    const response = await fetch(`${JSONBIN_BASE_URL}/${REGISTRY_BIN_ID}`, {
                         headers: {
                             'X-Master-Key': JSONBIN_API_KEY
                         }
@@ -522,7 +522,7 @@
             // Update room registry
             async function updateRoomRegistry(registry) {
                 try {
-                    await fetch(${JSONBIN_BASE_URL}/${REGISTRY_BIN_ID}, {
+                    await fetch(`${JSONBIN_BASE_URL}/${REGISTRY_BIN_ID}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -550,7 +550,7 @@
                         currentBinId = registry[currentRoom];
                         
                         // Load the room data
-                        const response = await fetch(${JSONBIN_BASE_URL}/${currentBinId}, {
+                        const response = await fetch(`${JSONBIN_BASE_URL}/${currentBinId}`, {
                             headers: {
                                 'X-Master-Key': JSONBIN_API_KEY
                             }
@@ -597,7 +597,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                             'X-Master-Key': JSONBIN_API_KEY,
-                            'X-Bin-Name': Chat Room ${currentRoom},
+                            'X-Bin-Name': `Chat Room ${currentRoom}`,
                             'X-Bin-Private': 'false'
                         },
                         body: JSON.stringify(roomData)
@@ -632,7 +632,7 @@
             async function addUserToRoom(existingUsers = []) {
                 try {
                     // Get current room data
-                    const response = await fetch(${JSONBIN_BASE_URL}/${currentBinId}, {
+                    const response = await fetch(`${JSONBIN_BASE_URL}/${currentBinId}`, {
                         headers: {
                             'X-Master-Key': JSONBIN_API_KEY
                         }
@@ -661,7 +661,7 @@
             // Update room data
             async function updateRoomData(roomData) {
                 try {
-                    const response = await fetch(${JSONBIN_BASE_URL}/${currentBinId}, {
+                    const response = await fetch(`${JSONBIN_BASE_URL}/${currentBinId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -693,7 +693,7 @@
                     users.forEach(user => {
                         const li = document.createElement('li');
                         if (user === currentUser) {
-                            li.innerHTML = <strong>${user} (You)</strong>;
+                            li.innerHTML = `<strong>${user} (You)</strong>`;
                         } else {
                             li.textContent = user;
                         }
@@ -721,14 +721,14 @@
                 }
                 
                 connectionStatus.textContent = statusText;
-                connectionStatus.className = status ${statusClass};
+                connectionStatus.className = `status ${statusClass}`;
             }
             
             // Start checking for updates
             function startCheckingForUpdates() {
                 checkInterval = setInterval(async () => {
                     try {
-                        const response = await fetch(${JSONBIN_BASE_URL}/${currentBinId}, {
+                        const response = await fetch(`${JSONBIN_BASE_URL}/${currentBinId}`, {
                             headers: {
                                 'X-Master-Key': JSONBIN_API_KEY
                             }
@@ -781,7 +781,7 @@
                 
                 try {
                     // Get current room data
-                    const response = await fetch(${JSONBIN_BASE_URL}/${currentBinId}, {
+                    const response = await fetch(`${JSONBIN_BASE_URL}/${currentBinId}`, {
                         headers: {
                             'X-Master-Key': JSONBIN_API_KEY
                         }
@@ -855,7 +855,7 @@
                 
                 // Check if message is already displayed
                 if (displayedMessageIds.has(message.timestamp)) {
-                    const existingMessage = document.querySelector([data-message-id="${message.timestamp}"]);
+                    const existingMessage = document.querySelector(`[data-message-id="${message.timestamp}"]`);
                     if (existingMessage) {
                         return; // Message already displayed
                     }
@@ -892,3 +892,4 @@
     </script>
 </body>
 </html>
+
