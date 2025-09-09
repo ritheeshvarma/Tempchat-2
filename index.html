@@ -423,6 +423,33 @@
                 }, 3000);
             }
             
+            // Ensure unique username by appending a sequential number when needed
+            function escapeRegExp(str) {
+                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+            
+            function getUniqueUsername(desired, users = []) {
+                if (!users || users.length === 0) return desired;
+                if (!users.includes(desired)) return desired;
+                
+                const base = desired;
+                const pattern = new RegExp('^' + escapeRegExp(base) + '\\s*\\((\\d+)\\)$');
+                let maxN = 1;
+                
+                for (const u of users) {
+                    if (u === base) {
+                        maxN = Math.max(maxN, 1);
+                        continue;
+                    }
+                    const m = u.match(pattern);
+                    if (m) {
+                        const n = parseInt(m[1], 10);
+                        if (!isNaN(n)) maxN = Math.max(maxN, n);
+                    }
+                }
+                return `${base} (${maxN + 1})`;
+            }
+            
             // Generate a random room code
             function generateRoomCode() {
                 return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -641,6 +668,14 @@
                     if (response.ok) {
                         const data = await response.json();
                         const roomData = data.record;
+                        
+                        // Ensure unique username within the room
+                        const uniqueName = getUniqueUsername(currentUser, roomData.users || []);
+                        if (uniqueName !== currentUser) {
+                            currentUser = uniqueName;
+                            usernameInput.value = currentUser;
+                            showNotification(`Username taken. You're now ${currentUser}.`);
+                        }
                         
                         // Add user if not already in room
                         if (!roomData.users.includes(currentUser)) {
@@ -892,4 +927,3 @@
     </script>
 </body>
 </html>
-
