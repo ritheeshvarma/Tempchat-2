@@ -423,33 +423,6 @@
                 }, 3000);
             }
             
-            // Ensure unique username by appending a sequential number when needed
-            function escapeRegExp(str) {
-                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            }
-            
-            function getUniqueUsername(desired, users = []) {
-                if (!users || users.length === 0) return desired;
-                if (!users.includes(desired)) return desired;
-                
-                const base = desired;
-                const pattern = new RegExp('^' + escapeRegExp(base) + '\\s*\\((\\d+)\\)$');
-                let maxN = 1;
-                
-                for (const u of users) {
-                    if (u === base) {
-                        maxN = Math.max(maxN, 1);
-                        continue;
-                    }
-                    const m = u.match(pattern);
-                    if (m) {
-                        const n = parseInt(m[1], 10);
-                        if (!isNaN(n)) maxN = Math.max(maxN, n);
-                    }
-                }
-                return `${base} (${maxN + 1})`;
-            }
-            
             // Generate a random room code
             function generateRoomCode() {
                 return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -505,6 +478,26 @@
                 
                 // Initialize the chat room
                 initializeRoom();
+            }
+            
+            // Reset UI/state back to welcome so user can try a different name
+            function resetToWelcome() {
+                // stop polling if running
+                if (checkInterval) {
+                    clearInterval(checkInterval);
+                    checkInterval = null;
+                }
+                // clear state
+                currentUser = '';
+                currentRoom = '';
+                currentBinId = '';
+                
+                // reset UI
+                welcomeScreen.classList.remove('hidden');
+                chatScreen.classList.add('hidden');
+                roomInfo.classList.add('hidden');
+                currentRoomCode.textContent = '';
+                updateConnectionStatus('disconnected');
             }
             
             // Get or create room registry
@@ -669,17 +662,18 @@
                         const data = await response.json();
                         const roomData = data.record;
                         
-                        // Ensure unique username within the room
-                        const uniqueName = getUniqueUsername(currentUser, roomData.users || []);
-                        if (uniqueName !== currentUser) {
-                            currentUser = uniqueName;
-                            usernameInput.value = currentUser;
-                            showNotification(`Username taken. You're now ${currentUser}.`);
+                        // Check for exact duplicate username
+                        const usersArr = roomData.users || [];
+                        if (usersArr.includes(currentUser)) {
+                            showNotification(`Username '${currentUser}' is already taken. Please choose a different name.`, true);
+                            resetToWelcome();
+                            return; // prevent join
                         }
                         
                         // Add user if not already in room
-                        if (!roomData.users.includes(currentUser)) {
-                            roomData.users.push(currentUser);
+                        if (!usersArr.includes(currentUser)) {
+                            usersArr.push(currentUser);
+                            roomData.users = usersArr;
                             
                             // Update room data
                             await updateRoomData(roomData);
